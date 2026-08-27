@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="icon" type="image/png" href="{{ asset('img/logo.png') }}">
     <title>@yield('title', 'Tienda Luxor')</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -37,6 +38,9 @@
     <style>
                 /* Oculta la barra de scroll fea del menú */
         .nav-scroll { scrollbar-width: none; -ms-overflow-style: none; }
+                .nav-item-luxor { text-decoration: none; }
+                        a { text-decoration: none; }
+                                html, body { overflow-x: hidden; }
         .nav-scroll::-webkit-scrollbar { display: none; }
 
         /* Iconos del menú más grandes y alineados */
@@ -130,15 +134,18 @@
 
 <div class="min-h-screen">
     <!-- ============ SIDEBAR ============ -->
-            <aside id="sidebar" class="sidebar fixed inset-y-0 left-0 z-50 flex flex-col bg-luxor-sidebar px-4 py-6">
-        <div class="mb-6 flex items-center gap-3 px-2">
-            <div class="grid h-10 w-10 place-items-center rounded-full bg-luxor-accent text-lg font-bold text-white shadow-lg">L</div>
-            <div>
-                <strong class="block text-sm text-white">Tienda Luxor</strong>
-                <small class="text-[10px] text-slate-400">Gestión inteligente</small>
-            </div>
-            <button onclick="toggleSidebar()" class="ml-auto text-slate-400 lg:hidden">✕</button>
-        </div>
+            <aside id="sidebar" class="sidebar fixed inset-y-0 left-0 z-50 flex flex-col overflow-y-auto bg-luxor-sidebar px-4 py-6">
+       <div class="mb-6 flex items-center gap-3 px-2">
+       <span class="block h-12 w-12 shrink-0 overflow-hidden rounded-full shadow-lg ring-2 ring-white/20">
+        <img src="{{ asset('img/logo.png') }}" alt="Luxor"
+             class="h-full w-full object-cover" style="transform: scale(1.32);">
+    </span>
+    <div>
+        <strong class="block text-sm text-white">Luxor</strong>
+        <small class="text-[10px] text-slate-400">Gestión inteligente</small>
+    </div>
+    <button onclick="toggleSidebar()" class="ml-auto text-slate-400 lg:hidden">✕</button>
+</div>
 
         {{-- Chip informativo (ya no parece botón) --}}
         <div class="mb-2 flex items-center gap-2 rounded-lg border border-white/10 px-3 py-3 text-xs text-slate-300">
@@ -147,7 +154,7 @@
             <span class="ml-auto text-[10px] text-slate-500">Activa</span>
         </div>
 
-        <nav class="nav-scroll flex-1 overflow-y-auto pr-1">
+        <nav class="nav-scroll pr-1">
             <p class="nav-section">Principal</p>
             <a href="{{ route('dashboard') }}" class="nav-item-luxor flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm {{ request()->routeIs('dashboard') ? 'active' : 'text-slate-300 hover:bg-white/10 hover:text-white' }}">
                 <i class="bi bi-speedometer2"></i><span>Dashboard</span>
@@ -212,9 +219,26 @@
                     </span>
                     <i class="bi bi-chevron-down text-xs text-slate-400"></i>
                 </button>
-                <ul class="dropdown-menu w-100">
-                    <li><a class="dropdown-item" href="{{ route('ventas.index') }}"><i class="bi bi-mic-fill me-2 text-danger"></i>Venta por voz</a></li>
-                    <li><a class="dropdown-item" href="{{ route('pedidos.index') }}"><i class="bi bi-cpu me-2 text-primary"></i>Análisis de facturas</a></li>
+                                <ul class="dropdown-menu luxor-ai-menu w-100 overflow-hidden"
+                    style="background: var(--lx-surface); border: 1px solid var(--lx-border); border-radius: .9rem; box-shadow: 0 12px 32px rgba(0,0,0,.28); padding: .4rem;">
+                    <li>
+                        <a class="dropdown-item d-flex align-items-center gap-2 rounded-3 py-2" style="color: var(--lx-text);" href="{{ route('ventas.index') }}">
+                            <span class="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-red-500/15 text-red-500"><i class="bi bi-mic-fill" style="font-size: .8rem;"></i></span>
+                            Venta por voz
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item d-flex align-items-center gap-2 rounded-3 py-2" style="color: var(--lx-text);" href="{{ route('pedidos.index') }}">
+                            <span class="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-purple-500/15 text-purple-500"><i class="bi bi-mic-fill" style="font-size: .8rem;"></i></span>
+                            Pedido por voz
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item d-flex align-items-center gap-2 rounded-3 py-2" style="color: var(--lx-text);" href="{{ route('pedidos.facturas') }}">
+                            <span class="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-blue-500/15 text-blue-500"><i class="bi bi-cpu" style="font-size: .8rem;"></i></span>
+                            Análisis de facturas
+                        </a>
+                    </li>
                 </ul>
             </div>
 

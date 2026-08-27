@@ -39,6 +39,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/ventas', [VentaController::class, 'index'])->name('ventas.index');
         Route::get('/ventas/crear', [VentaController::class, 'create'])->name('ventas.create');
         Route::post('/ventas', [VentaController::class, 'store'])->name('ventas.store');
+            Route::post('/ventas-voz-carrito', [VentaController::class, 'vozCarrito'])->name('ventas.vozCarrito');
         Route::get('/ventas/{id}', [VentaController::class, 'show'])->name('ventas.show');
         Route::delete('/ventas/{id}', [VentaController::class, 'destroy'])->name('ventas.destroy');
         // Caja
@@ -84,7 +85,9 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/pedidos', [PedidoController::class, 'index'])->name('pedidos.index');
         Route::get('/pedidos/crear', [PedidoController::class, 'create'])->name('pedidos.create');
         Route::post('/pedidos', [PedidoController::class, 'store'])->name('pedidos.store');
-        Route::get('/pedidos/{id}', [PedidoController::class, 'show'])->name('pedidos.show');
+           Route::post('/pedidos-voz', [PedidoController::class, 'vozPedido'])->name('pedidos.voz');
+    Route::get('/pedidos/facturas', [PedidoController::class, 'facturas'])->name('pedidos.facturas');
+    Route::get('/pedidos/{id}', [PedidoController::class, 'show'])->name('pedidos.show'); // ← línea existente
         Route::put('/pedidos/{id}/recibir', [PedidoController::class, 'recibir'])->name('pedidos.recibir');
         Route::put('/pedidos/{id}/cancelar', [PedidoController::class, 'cancelar'])->name('pedidos.cancelar');
        

@@ -226,4 +226,66 @@ public function store(Request $request)
             return back()->with('error', 'Error: ' . $e->getMessage());
         }
     }
+       public function vozCarrito(Request $request)
+    {
+        $request->validate([
+            'tipo' => 'required|in:venta,ingreso',
+            'productos' => 'required|array|min:1',
+            'productos.*.id' => 'required|exists:productos,id',
+            'productos.*.cantidad' => 'required|integer|min:1',
+        ]);
+
+        // ===== INGRESO DE STOCK =====
+        if ($request->tipo === 'ingreso') {
+            $nombres = [];
+            foreach ($request->productos as $item) {
+                $producto = Producto::find($item['id']);
+                $producto->stock_actual += $item['cantidad'];
+                $producto->save();
+                $nombres[] = "{$item['cantidad']} {$producto->nombre_producto}";
+            }
+            AuditoriaLog::registrar('Ingreso', 'Productos', 'Ingreso por VOZ: ' . implode(', ', $nombres));
+            return redirect()->route('ventas.index')
+                ->with('success', 'Ingreso por voz registrado: stock actualizado');
+        }
+
+        // ===== VENTA =====
+        $total = 0;
+        $detalles = [];
+        foreach ($request->productos as $item) {
+            $producto = Producto::find($item['id']);
+            if ($producto->stock_actual < $item['cantidad']) {
+                return back()->with('error', "Stock insuficiente de {$producto->nombre_producto} (hay {$producto->stock_actual})");
+            }
+            $sub = $item['cantidad'] * $producto->precio_venta;
+            $total += $sub;
+            $detalles[] = ['producto' => $producto, 'cantidad' => $item['cantidad'], 'subtotal' => $sub];
+        }
+
+        $ventaId = DB::table('ventas')->insertGetId([
+            'id_usuario' => auth()->id(),
+            'total_venta' => $total,
+            'metodo_pago' => $request->metodo_pago ?? 'Efectivo',
+            'estado' => 'Completada',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        foreach ($detalles as $d) {
+            DB::table('detalle_ventas')->insert([
+                'id_venta' => $ventaId,
+                'id_producto' => $d['producto']->id,
+                'cantidad' => $d['cantidad'],
+                'precio_unitario' => $d['producto']->precio_venta,
+                'subtotal' => $d['subtotal'],
+            ]);
+            $d['producto']->stock_actual -= $d['cantidad'];
+            $d['producto']->save();
+        }
+
+        AuditoriaLog::registrar('Crear', 'Ventas', "Venta por VOZ #{$ventaId} con " . count($detalles) . ' producto(s)');
+
+        return redirect()->route('ventas.show', $ventaId)
+            ->with('success', "Venta por voz #{$ventaId} registrada");
+    }
     }

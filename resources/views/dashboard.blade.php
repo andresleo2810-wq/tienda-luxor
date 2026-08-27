@@ -20,7 +20,7 @@
 </div>
 
 <!-- KPI CARDS -->
-<div class="mb-5 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+<div class="mb-5 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
     <div class="rounded-xl border border-luxor-border bg-luxor-surface p-5 shadow-sm">
         <div class="flex items-center justify-between text-xs text-luxor-muted">
             <span>Ventas hoy</span>
@@ -65,31 +65,31 @@
 </div>
 
 <!-- GRÁFICAS -->
-<div class="mb-5 grid gap-5 xl:grid-cols-[1.45fr_1fr]">
-    <div class="rounded-xl border border-luxor-border bg-luxor-surface p-5">
+<div class="mb-5 grid grid-cols-1 gap-5 xl:grid-cols-[1.45fr_1fr]">
+    <div class="min-w-0 overflow-hidden rounded-xl border border-luxor-border bg-luxor-surface p-5">
         <div class="mb-5">
             <h2 class="font-semibold">Ventas últimos 7 días</h2>
             <p class="mt-1 text-xs text-luxor-muted">Rendimiento de ventas por día</p>
         </div>
-        <div class="h-72"><canvas id="salesChart"></canvas></div>
+        <div class="relative h-64 sm:h-72"><canvas id="salesChart"></canvas></div>
     </div>
-    <div class="rounded-xl border border-luxor-border bg-luxor-surface p-5">
+        <div class="min-w-0 overflow-hidden rounded-xl border border-luxor-border bg-luxor-surface p-5">
         <div class="mb-5">
             <h2 class="font-semibold">Métodos de pago</h2>
             <p class="mt-1 text-xs text-luxor-muted">Distribución del mes</p>
         </div>
-        <div class="mx-auto h-72 max-w-sm"><canvas id="paymentChart"></canvas></div>
+        <div class="relative mx-auto h-64 max-w-sm sm:h-72"><canvas id="paymentChart"></canvas></div>
     </div>
 </div>
 
 <!-- TOP 5 -->
 <div class="mb-5 rounded-xl border border-luxor-border bg-luxor-surface p-5">
-    <div class="mb-5 flex items-start justify-between">
+    <div class="mb-5 flex items-start justify-between gap-3">
         <div>
             <h2 class="font-semibold">Top 5 productos más vendidos</h2>
             <p class="mt-1 text-xs text-luxor-muted">Unidades vendidas este mes</p>
         </div>
-        <a href="{{ route('productos.index') }}" class="text-xs text-luxor-accentDark hover:underline">Ver todos →</a>
+        <a href="{{ route('productos.index') }}" class="whitespace-nowrap text-xs text-luxor-accentDark hover:underline">Ver todos →</a>
     </div>
     <div class="space-y-5">
         @forelse($topProductos as $index => $producto)
@@ -113,13 +113,13 @@
 
 <!-- ACTIVIDAD RECIENTE -->
 <div class="rounded-xl border border-luxor-border bg-luxor-surface p-5">
-    <div class="mb-5 flex items-center justify-between">
+    <div class="mb-5 flex items-center justify-between gap-3">
         <div>
             <h2 class="font-semibold">Actividad reciente</h2>
             <p class="mt-1 text-xs text-luxor-muted">Últimos movimientos en tu tienda</p>
         </div>
         @if(Auth::user()->rol->nombre_rol == 'Administrador')
-        <a href="{{ route('auditoria.index') }}" class="text-xs text-luxor-accentDark hover:underline">Ver actividad →</a>
+        <a href="{{ route('auditoria.index') }}" class="whitespace-nowrap text-xs text-luxor-accentDark hover:underline">Ver actividad →</a>
         @endif
     </div>
     <div class="divide-y divide-luxor-border">
@@ -130,7 +130,7 @@
                 <strong class="block text-sm">{{ $actividad['tipo'] }}</strong>
                 <small class="block text-xs text-luxor-muted">{{ $actividad['detalle'] }}</small>
             </div>
-            <strong class="text-xs text-luxor-muted">{{ $actividad['valor'] }}</strong>
+            <strong class="hidden text-xs text-luxor-muted sm:block">{{ $actividad['valor'] }}</strong>
         </div>
         @endforeach
     </div>
@@ -140,8 +140,15 @@
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 <script>
-    const gridColor = '#DCE6DD';
+    const gridColor = getComputedStyle(document.documentElement).getPropertyValue('--lx-border').trim() || '#DCE6DD';
     const mutedColor = '#708178';
+
+    // Formato inteligente: $850K o $1.9M
+    function formatoEje(v) {
+        if (v >= 1000000) return '$' + (v / 1000000).toFixed(1) + 'M';
+        if (v >= 1000) return '$' + Math.round(v / 1000) + 'K';
+        return '$' + v;
+    }
 
     new Chart(document.getElementById('salesChart'), {
         type: 'bar',
@@ -153,7 +160,7 @@
                 backgroundColor: '#6E9F78',
                 borderRadius: 7,
                 borderSkipped: false,
-                barThickness: 34
+                maxBarThickness: 34
             }]
         },
         options: {
@@ -168,14 +175,11 @@
                 }
             },
             scales: {
-                x: { grid: { display: false }, ticks: { color: mutedColor } },
+                x: { grid: { display: false }, ticks: { color: mutedColor, maxRotation: 0, autoSkip: true } },
                 y: {
                     beginAtZero: true,
                     grid: { color: gridColor },
-                    ticks: {
-                        color: mutedColor,
-                        callback: v => '$' + (v / 1000000).toFixed(1) + 'M'
-                    }
+                    ticks: { color: mutedColor, callback: v => formatoEje(v) }
                 }
             }
         }
@@ -203,7 +207,7 @@
             plugins: {
                 legend: {
                     position: 'bottom',
-                    labels: { color: '#24372F', padding: 18, usePointStyle: true, pointStyle: 'circle' }
+                    labels: { color: mutedColor, padding: 14, usePointStyle: true, pointStyle: 'circle', boxWidth: 8 }
                 }
             }
         }

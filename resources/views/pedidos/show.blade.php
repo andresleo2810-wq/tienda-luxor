@@ -98,6 +98,48 @@
                 </div>
                 @endforeach
 
+                {{-- 📄 TODOS LOS PRODUCTOS LEÍDOS POR LA IA --}}
+                @if(!empty($lineas))
+                <div class="mt-4 rounded-lg border border-luxor-border px-4 py-3" style="background: var(--lx-surface2);">
+                    <strong class="text-sm"><i class="bi bi-cpu text-luxor-accent"></i> 📄 Productos que la IA leyó en la factura ({{ count($lineas) }}):</strong>
+                    <div class="mt-3 space-y-2">
+                        @foreach($lineas as $linea)
+                        <div class="flex items-start justify-between gap-3 rounded-lg border px-3 py-2 text-xs" style="border-color: var(--lx-border); background: var(--lx-surface);">
+                            <div class="min-w-0 flex-1">
+                                <strong class="block truncate">{{ $linea['nombre'] }}</strong>
+                                <div class="mt-1 flex flex-wrap gap-2 text-[10px] text-luxor-muted">
+                                    <span class="rounded bg-blue-500/15 px-1.5 py-0.5 text-blue-600"><strong>{{ $linea['cantidad'] }} x</strong></span>
+                                    @if($linea['volumen'])
+                                        <span class="rounded bg-purple-500/15 px-1.5 py-0.5 text-purple-600">{{ $linea['volumen'] }}</span>
+                                    @endif
+                                    @if($linea['grado'])
+                                        <span class="rounded bg-orange-500/15 px-1.5 py-0.5 text-orange-600">{{ $linea['grado'] }}</span>
+                                    @endif
+                                    @if($linea['codigo'])
+                                        <span class="rounded bg-gray-500/15 px-1.5 py-0.5 text-gray-600">Cód: {{ $linea['codigo'] }}</span>
+                                    @endif
+                                    @if($linea['precio'])
+                                        <span class="rounded bg-emerald-500/15 px-1.5 py-0.5 text-emerald-600">$ {{ number_format($linea['precio'], 0) }}</span>
+                                    @endif
+                                </div>
+                            </div>
+                            @if($linea['existe'])
+                                <span class="whitespace-nowrap rounded-full bg-emerald-500/15 px-2 py-0.5 text-[10px] text-emerald-500">✅ En catálogo</span>
+                            @else
+                                <span class="whitespace-nowrap rounded-full bg-blue-500/15 px-2 py-0.5 text-[10px] text-blue-500">🆕 Nuevo</span>
+                            @endif
+                        </div>
+                        @endforeach
+                    </div>
+                    @if($pedido->estado == 'Pendiente')
+                    <a href="{{ route('pedidos.verificar', $pedido->id) }}"
+                       class="mt-3 inline-block rounded-lg bg-luxor-accent px-4 py-2 text-xs font-semibold text-white hover:bg-luxor-accentDark">
+                        ✨ Crear los nuevos → Ir a verificación
+                    </a>
+                    @endif
+                </div>
+                @endif
+
                 <details class="mt-2">
                     <summary class="cursor-pointer text-sm font-semibold text-luxor-accent">Ver texto extraído por la IA</summary>
                     <pre class="mt-2 max-h-64 overflow-auto rounded-lg border p-3 text-xs" style="border-color: var(--lx-border); background: var(--lx-surface2);">{{ $pedido->texto_ocr }}</pre>

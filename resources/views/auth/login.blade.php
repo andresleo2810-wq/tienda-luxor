@@ -20,10 +20,11 @@
     <div class="rounded-2xl border border-luxor-border bg-luxor-surface p-8 shadow-xl">
         {{-- Logo --}}
         <div class="mb-8 text-center">
-            <div class="mx-auto mb-4 grid h-16 w-16 place-items-center rounded-2xl bg-gradient-to-br from-luxor-accent to-luxor-blue text-3xl font-bold italic text-white shadow-lg">
-                L
-            </div>
-            <h1 class="text-2xl font-semibold">Tienda Luxor</h1>
+                <span class="mx-auto mb-5 block h-28 w-28 overflow-hidden rounded-full shadow-2xl ring-4 ring-white/10">
+        <img src="{{ asset('img/logo.png') }}" alt="Luxor"
+             class="h-full w-full object-cover" style="transform: scale(1.32);">
+    </span>
+            <h1 class="text-2xl font-semibold"> Luxor</h1>
             <p class="mt-1 text-sm text-luxor-muted">Gestión inteligente de licorería</p>
         </div>
 
@@ -80,7 +81,10 @@
     </div>
 
     <p class="mt-6 text-center text-xs text-luxor-muted">
-        Desarrollado con Laravel 11 + Bootstrap 5 + Tailwind CSS
+           <p class="mt-6 text-center text-xs tracking-wide" style="color: var(--lx-muted);">
+        © {{ now()->year }} <strong class="text-luxor-accent">LUXOR</strong> · Premium Spirits · EST. 2024
+        <span class="mx-1">·</span> Gestión inteligente de licorería
+    </p>
     </p>
 </div>
 @endsection
