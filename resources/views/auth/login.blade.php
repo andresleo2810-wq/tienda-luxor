@@ -68,6 +68,9 @@
             <button type="submit"
                     class="w-full rounded-lg bg-luxor-accent px-4 py-3 text-sm font-semibold text-white shadow-lg transition hover:bg-luxor-accentDark focus:ring-2 focus:ring-luxor-accent/40">
                 <i class="bi bi-box-arrow-in-right"></i> Iniciar sesión
+                <a href="{{ route('password.request') }}" class="mt-3 block text-center text-xs text-luxor-muted hover:text-luxor-accent">
+    ¿Olvidaste tu contraseña?
+</a>
             </button>
         </form>
 

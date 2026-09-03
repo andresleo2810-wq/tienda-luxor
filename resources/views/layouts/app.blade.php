@@ -127,8 +127,11 @@
         ->whereColumn('stock_actual', '<=', 'stock_minimo')->count();
     $nombres = explode(' ', Auth::user()->nombre_completo);
     $iniciales = strtoupper(substr($nombres[0] ?? 'U', 0, 1) . substr($nombres[1] ?? '', 0, 1));
-    $esAdmin = Auth::user()->rol->nombre_rol == 'Administrador';
-        $pedidosPendLayout = \App\Models\Pedido::where('estado', 'Pendiente')->count();
+    
+    //  Comparación en minúsculas para evitar errores si dice "Administrador" o "administrador"
+    $esAdmin = strtolower(Auth::user()->rol->nombre_rol ?? '') === 'administrador';
+    
+    $pedidosPendLayout = \App\Models\Pedido::where('estado', 'Pendiente')->count();
     $cajasAbiertasLayout = \App\Models\Caja::where('estado', 'Abierta')->count();
 @endphp
 

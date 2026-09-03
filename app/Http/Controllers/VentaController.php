@@ -11,32 +11,35 @@ use App\Models\AuditoriaLog;
 
 class VentaController extends Controller
 {
-    /**
-     * Listar ventas
-     */
+        //Listar ventas
+     //
     public function index()
     {
         $ventas = Venta::with(['usuario', 'detalles'])
             ->orderBy('created_at', 'desc')
             ->paginate(10);
-            $productosVoz = Producto::where('estado', true)->get(['id', 'nombre_producto']);
+            
+        // Agregar precio_venta y stock_actual
+        $productosVoz = Producto::where('estado', true)
+            ->get(['id', 'nombre_producto', 'precio_venta', 'stock_actual']);
         
         return view('ventas.index', compact('ventas', 'productosVoz'));
     }
 
-    /**
+        /**
      * Formulario de nueva venta
      */
     public function create()
     {
+        // Usamos select() para forzar que traiga el precio_venta
         $productos = Producto::where('estado', true)
             ->where('stock_actual', '>', 0)
+            ->select('id', 'nombre_producto', 'precio_venta', 'stock_actual') 
             ->orderBy('nombre_producto')
             ->get();
         
         return view('ventas.create', compact('productos'));
     }
-
 
 
     /**

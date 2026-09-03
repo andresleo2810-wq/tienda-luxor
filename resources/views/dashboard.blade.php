@@ -11,7 +11,9 @@
         <h1 class="mt-2 text-3xl font-semibold tracking-tight">
             {{ $saludo }}, {{ explode(' ', Auth::user()->nombre_completo)[0] }}
         </h1>
-        <p class="mt-1 text-sm text-luxor-muted">Este es el resumen de tu negocio hoy.</p>
+        <p class="mt-1 text-sm text-luxor-muted">
+            @if($esAdmin) Este es el resumen de tu negocio hoy. @else Este es el resumen de tu turno hoy. @endif
+        </p>
     </div>
     <a href="{{ route('ventas.create') }}"
        class="inline-flex items-center justify-center gap-2 rounded-lg bg-luxor-accent px-4 py-3 text-sm font-semibold text-white hover:bg-luxor-accentDark">
@@ -21,30 +23,38 @@
 
 <!-- KPI CARDS -->
 <div class="mb-5 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+    <!-- 1. Ventas hoy (Lo ven TODOS) -->
     <div class="rounded-xl border border-luxor-border bg-luxor-surface p-5 shadow-sm">
         <div class="flex items-center justify-between text-xs text-luxor-muted">
             <span>Ventas hoy</span>
             <span class="rounded-lg bg-emerald-100 px-3 py-2 text-emerald-600"><i class="bi bi-cash"></i></span>
         </div>
         <strong class="mt-4 block text-2xl">$ {{ number_format($ventasHoy, 0) }}</strong>
+        @if($variacionHoy != 100)
         <div class="mt-3 text-xs {{ $variacionHoy >= 0 ? 'text-emerald-600' : 'text-red-500' }}">
             {{ $variacionHoy >= 0 ? '↑' : '↓' }} {{ number_format(abs($variacionHoy), 1) }}%
             <span class="text-luxor-muted">vs. ayer</span>
         </div>
+        @endif
     </div>
 
+    <!-- 2. Ventas del mes (Lo ven TODOS) -->
     <div class="rounded-xl border border-luxor-border bg-luxor-surface p-5 shadow-sm">
         <div class="flex items-center justify-between text-xs text-luxor-muted">
             <span>Ventas del mes</span>
             <span class="rounded-lg bg-blue-100 px-3 py-2 text-blue-600"><i class="bi bi-graph-up"></i></span>
         </div>
         <strong class="mt-4 block text-2xl">$ {{ number_format($ventasMes, 0) }}</strong>
+        @if($esAdmin && $variacionMes != 100)
         <div class="mt-3 text-xs {{ $variacionMes >= 0 ? 'text-emerald-600' : 'text-red-500' }}">
             {{ $variacionMes >= 0 ? '↑' : '↓' }} {{ number_format(abs($variacionMes), 1) }}%
             <span class="text-luxor-muted">vs. mes anterior</span>
         </div>
+        @endif
     </div>
 
+    <!-- 3. SOLO ADMIN: Stock bajo -->
+    @if($esAdmin)
     <div class="rounded-xl border border-luxor-border bg-luxor-surface p-5 shadow-sm">
         <div class="flex items-center justify-between text-xs text-luxor-muted">
             <span>Stock bajo</span>
@@ -54,6 +64,7 @@
         <div class="mt-3 text-xs text-luxor-muted">Requieren reposición</div>
     </div>
 
+    <!-- 4. SOLO ADMIN: Pedidos pendientes -->
     <div class="rounded-xl border border-luxor-border bg-luxor-surface p-5 shadow-sm">
         <div class="flex items-center justify-between text-xs text-luxor-muted">
             <span>Pedidos pendientes</span>
@@ -62,6 +73,7 @@
         <strong class="mt-4 block text-2xl">{{ $pedidosPendientes }} pedidos</strong>
         <div class="mt-3 text-xs text-luxor-muted">Por recibir</div>
     </div>
+    @endif
 </div>
 
 <!-- GRÁFICAS -->
@@ -73,16 +85,20 @@
         </div>
         <div class="relative h-64 sm:h-72"><canvas id="salesChart"></canvas></div>
     </div>
-        <div class="min-w-0 overflow-hidden rounded-xl border border-luxor-border bg-luxor-surface p-5">
+    
+    @if($esAdmin)
+    <div class="min-w-0 overflow-hidden rounded-xl border border-luxor-border bg-luxor-surface p-5">
         <div class="mb-5">
             <h2 class="font-semibold">Métodos de pago</h2>
             <p class="mt-1 text-xs text-luxor-muted">Distribución del mes</p>
         </div>
         <div class="relative mx-auto h-64 max-w-sm sm:h-72"><canvas id="paymentChart"></canvas></div>
     </div>
+    @endif
 </div>
 
-<!-- TOP 5 -->
+<!-- TOP 5 (SOLO ADMIN) -->
+@if($esAdmin)
 <div class="mb-5 rounded-xl border border-luxor-border bg-luxor-surface p-5">
     <div class="mb-5 flex items-start justify-between gap-3">
         <div>
@@ -110,20 +126,21 @@
         @endforelse
     </div>
 </div>
+@endif
 
 <!-- ACTIVIDAD RECIENTE -->
 <div class="rounded-xl border border-luxor-border bg-luxor-surface p-5">
     <div class="mb-5 flex items-center justify-between gap-3">
         <div>
-            <h2 class="font-semibold">Actividad reciente</h2>
-            <p class="mt-1 text-xs text-luxor-muted">Últimos movimientos en tu tienda</p>
+            <h2 class="font-semibold">@if($esAdmin) Actividad reciente del sistema @else Mi actividad reciente @endif</h2>
+            <p class="mt-1 text-xs text-luxor-muted">@if($esAdmin) Últimos movimientos en tu tienda @else Tus últimas acciones registradas @endif</p>
         </div>
-        @if(Auth::user()->rol->nombre_rol == 'Administrador')
+        @if($esAdmin)
         <a href="{{ route('auditoria.index') }}" class="whitespace-nowrap text-xs text-luxor-accentDark hover:underline">Ver actividad →</a>
         @endif
     </div>
     <div class="divide-y divide-luxor-border">
-        @foreach($actividades as $actividad)
+        @forelse($actividades as $actividad)
         <div class="flex items-center gap-4 py-4 first:pt-0 last:pb-0">
             <span class="h-2.5 w-2.5 shrink-0 rounded-full {{ $actividad['color'] }}"></span>
             <div class="min-w-0 flex-1">
@@ -132,7 +149,9 @@
             </div>
             <strong class="hidden text-xs text-luxor-muted sm:block">{{ $actividad['valor'] }}</strong>
         </div>
-        @endforeach
+        @empty
+        <p class="text-sm text-luxor-muted py-4">No hay actividad registrada aún.</p>
+        @endforelse
     </div>
 </div>
 @endsection
@@ -143,7 +162,6 @@
     const gridColor = getComputedStyle(document.documentElement).getPropertyValue('--lx-border').trim() || '#DCE6DD';
     const mutedColor = '#708178';
 
-    // Formato inteligente: $850K o $1.9M
     function formatoEje(v) {
         if (v >= 1000000) return '$' + (v / 1000000).toFixed(1) + 'M';
         if (v >= 1000) return '$' + Math.round(v / 1000) + 'K';
@@ -185,6 +203,7 @@
         }
     });
 
+    @if($esAdmin)
     new Chart(document.getElementById('paymentChart'), {
         type: 'doughnut',
         data: {
@@ -212,5 +231,6 @@
             }
         }
     });
+    @endif
 </script>
 @endpush

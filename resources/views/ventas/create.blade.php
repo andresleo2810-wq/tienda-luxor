@@ -82,10 +82,19 @@
 
 @push('scripts')
 <script>
+    // Cargamos los productos
     const PRODUCTOS = @json($productos);
+    
+    // DEBUG: Abre la consola del navegador (F12) para ver si el precio viene aquí
+    console.log("Productos cargados en JS:", PRODUCTOS);
+
     let carrito = [];
 
-    function fmt(n) { return '$ ' + new Intl.NumberFormat('es-CO').format(n); }
+    // Función de formato blindada (si el precio es null o undefined, muestra $ 0)
+    function fmt(n) { 
+        if (!n || isNaN(n)) return '$ 0'; 
+        return '$ ' + new Intl.NumberFormat('es-CO').format(n); 
+    }
 
     function renderProductos(filtro = '') {
         const f = filtro.toLowerCase();

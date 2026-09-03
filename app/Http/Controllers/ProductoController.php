@@ -8,9 +8,8 @@ use App\Models\AuditoriaLog;
 
 class ProductoController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+    // Listar producto
+     //
     public function index(Request $request)
     {
         $query = Producto::query();
@@ -48,9 +47,8 @@ class ProductoController extends Controller
         return view('productos.create');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
+    // Crear producto
+     //
     public function store(Request $request)
 {
     $validated = $request->validate([
@@ -66,8 +64,8 @@ class ProductoController extends Controller
         'grado_alcoholico' => 'nullable|numeric|min:0|max:100',
         'volumen_ml' => 'nullable|integer|min:0',
         'pais_origen' => 'nullable|string|max:50',
-        'fecha_vencimiento' => 'nullable|date',   // ← Quitado "after:today"
-        'estado' => 'nullable'                      // ← Quitado "boolean"
+        'fecha_vencimiento' => 'nullable|date',   
+        'estado' => 'nullable'                      
     ], [
         'nombre_producto.required' => 'El nombre del producto es obligatorio',
         'precio_costo.required' => 'El precio de costo es obligatorio',
@@ -76,7 +74,7 @@ class ProductoController extends Controller
         'categoria.required' => 'La categoría es obligatoria'
     ]);
     
-    // ⚠️ Normalizar el campo estado (checkbox envía "0" cuando no está marcado)
+    //  Normalizar el campo estado (checkbox envía "0" cuando no está marcado)
     $validated['estado'] = $request->has('estado') && $request->estado == 1 ? true : false;
     
     // Precio sugerido si no viene venta
@@ -108,7 +106,8 @@ class ProductoController extends Controller
         $producto = \App\Models\Producto::findOrFail($id);
         return view('productos.edit', compact('producto'));
     }
-
+// Actualizar producto
+     //
     public function update(Request $request, $id)
 {
     $producto = Producto::findOrFail($id);
@@ -139,7 +138,8 @@ class ProductoController extends Controller
     return redirect()->route('productos.index')
         ->with('success', 'Producto actualizado exitosamente');
 }
-
+// Eliminar producto
+     //
     public function destroy($id)
     {
         $producto = \App\Models\Producto::findOrFail($id);

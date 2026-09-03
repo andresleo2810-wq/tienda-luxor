@@ -12,12 +12,12 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-    $middleware->alias([
-        'rol' => \App\Http\Middleware\VerificarRol::class,
-    ]);
+        // Registramos nuestro middleware personalizado con el alias 'rol'
+        $middleware->alias([
+            'rol' => \App\Http\Middleware\RolMiddleware::class,
+        ]);
     })
-    ->withExceptions(function (Exceptions $exceptions): void {
-        $exceptions->shouldRenderJsonWhen(
-            fn (Request $request) => $request->is('api/*') || $request->expectsJson(),
-        );
+    ->withExceptions(function (Exceptions $exceptions) {
+        //
     })->create();
+
